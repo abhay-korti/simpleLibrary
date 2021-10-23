@@ -1,6 +1,6 @@
 let myLibrary = [];
 
-function Book(title = 'book', author = 'author', pages = 0, haveRead = 'false') {
+function Book(title = 'book', author = 'author', pages = 0, haveRead = false) {
     this.title = title;
     this.author = author;
     this.pages = pages;
@@ -19,7 +19,7 @@ function addBook() {
 
         removeBtn.classList.add('remove');
         readStatusBtn.classList.add('change-status');
-        readStatusBtn.textContent = myLibrary[i].haveRead;
+        readStatusBtn.textContent = 'Change Read Status';
 
         let btnContainerDiv = document.createElement('div');
         displayDiv.classList.add('display-cards');
@@ -29,7 +29,7 @@ function addBook() {
         titleDiv.textContent = `${myLibrary[i].title}`;
         authorDiv.textContent = `${myLibrary[i].author}`;
         pagesDiv.textContent = `${myLibrary[i].pages}`;
-        haveReadDiv.textContent = `${myLibrary[i].haveRead == true ? 'Read!' : 'Not Read!'}`;
+        haveReadDiv.textContent = `${myLibrary[i].haveRead === true ? 'Read!' : 'Not Read!'}`;
         myLibrary[i].dataID = displayDiv.dataset.id;
 
         displayDiv.append(titleDiv);
@@ -48,8 +48,9 @@ function removingFromLib(element) {
         let givenElement = document.querySelector(`.display-cards[data-id="${this.parentElement.dataset.id}"]`)
         for (let i = 0; i <= myLibrary.length - 1; i++) {
             for (let keys in myLibrary[i]) {
-                if (myLibrary[i][keys] == givenElement.firstChild.textContent) {
+                if (myLibrary[i][keys] == this.parentElement.dataset.id) {
                     myLibrary.splice(i, 1);
+                    localStorage.removeItem(String(i));
                     break;
                 }
             }
@@ -68,7 +69,9 @@ function changeStatus(element) {
             for (let keys in myLibrary[i]) {
                 if (myLibrary[i][keys] == this.parentElement.dataset.id) {
                     myLibrary[i].haveRead = myLibrary[i].haveRead == true ? false : true;
-                    this.textContent = `${myLibrary[i].haveRead == true ? 'Read!' : 'Not Read!'}`
+                    this.parentElement.children[3].textContent = `${myLibrary[i].haveRead == true ? 'Read!' : 'Not Read!'}`;
+                    localStorage.setItem(i, JSON.stringify(myLibrary[i]));
+
                     console.log(myLibrary);
                 }
             }
@@ -76,6 +79,60 @@ function changeStatus(element) {
 
     })
 }
+
+function addToLocalStorage() {
+
+    for (let i = 0; i <= myLibrary.length - 1; i++) {
+        localStorage.setItem(i, JSON.stringify(myLibrary[i]));
+    }
+}
+
+function getFromLocalStorage() {
+    if (localStorage.length == 0) {
+        return
+    }
+    else {
+        for (let i = 0; i <= localStorage.length - 1; i++) {
+            myLibrary[i] = JSON.parse(localStorage.getItem(String(i)));
+        }
+    }
+    addBook();
+}
+
+function overallListener(event) {
+    let targetEvent = event.target;
+    console.log(targetEvent);
+    if (targetEvent.classList.contains('remove')) {
+        console.log('Accessed');
+        let givenElement = document.querySelector(`.display-cards[data-id="${targetEvent.parentElement.dataset.id}"]`)
+        for (let i = 0; i <= myLibrary.length - 1; i++) {
+            for (let keys in myLibrary[i]) {
+                if (myLibrary[i][keys] == givenElement.dataset.id) {
+                    myLibrary.splice(i, 1);
+                    localStorage.removeItem(String(i));
+                    break;
+                }
+            }
+        }
+        console.log(myLibrary);
+        givenElement.remove();
+    }
+    else if (targetEvent.classList.contains('change-status')) {
+        for (let i = 0; i <= myLibrary.length - 1; i++) {
+            for (let keys in myLibrary[i]) {
+                if (myLibrary[i][keys] == targetEvent.parentElement.dataset.id) {
+                    myLibrary[i].haveRead = myLibrary[i].haveRead == true ? false : true;
+                    targetEvent.parentElement.children[3].textContent = `${myLibrary[i].haveRead == true ? 'Read!' : 'Not Read!'}`;
+                    localStorage.setItem(i, JSON.stringify(myLibrary[i]));
+
+                    console.log(myLibrary);
+                }
+            }
+        }
+
+    }
+}
+
 
 const inputTitle = document.querySelector('#title');
 const inputAuthor = document.querySelector('#author');
@@ -87,6 +144,10 @@ const outputP = document.querySelector('.output');
 
 
 submitBtn.addEventListener('click', function () {
+    if (inputTitle.value == "" || inputAuthor.value == "" || inputPages == "") {
+        alert('Please fill out all fields!')
+        return
+    }
     if (myLibrary.length > 0) {
         for (let i = 0; i <= myLibrary.length - 1; i++) {
             for (let keys in myLibrary[i]) {
@@ -97,18 +158,22 @@ submitBtn.addEventListener('click', function () {
             }
         }
     }
-    let addedBook = new Book(inputTitle.value, inputAuthor.value, inputPages.value, (inputhaveRead.checked == false ? inputhaveNotRead.value : inputhaveRead.value))
+    console.log(inputhaveRead.checked, inputhaveNotRead.checked)
+    let addedBook = new Book(inputTitle.value, inputAuthor.value, inputPages.value, Boolean(inputhaveRead.checked))
     myLibrary.push(addedBook);
+    addToLocalStorage();
     document.querySelectorAll('.display-cards').forEach(element => element.remove());
-    console.log(document.querySelectorAll('.display-cards'));
+    console.log(addedBook);
     addBook();
     addedBook = null;
-    let removeBtn = document.querySelectorAll('.remove');
-    removeBtn.forEach(removingFromLib);
-    document.querySelectorAll('.change-status').forEach(changeStatus);
     inputTitle.value = "";
     inputAuthor.value = "";
     inputPages.value = "";
-    inputhaveNotRead.checked = true;
 });
 
+
+getFromLocalStorage();
+// let removeBtn = document.querySelectorAll('.remove');
+// removeBtn.forEach(removingFromLib);
+// document.querySelectorAll('.change-status').forEach(changeStatus);
+document.addEventListener('click', overallListener)

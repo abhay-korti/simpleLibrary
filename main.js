@@ -1,12 +1,13 @@
 let myLibrary = [];
 
-function Book(title = 'book', author = 'author', pages = 0, haveRead = false) {
-    this.title = title;
-    this.author = author;
-    this.pages = pages;
-    this.haveRead = haveRead;
-};
-
+class Book {
+    constructor(title = 'book', author = 'author', pages = 0, haveRead = false) {
+        this.title = title;
+        this.author = author;
+        this.pages = pages;
+        this.haveRead = haveRead;
+    }
+}
 function addBook() {
     for (let i = myLibrary.length - 1; i >= 0; i--) {
         let displayDiv = document.createElement('div');
@@ -46,7 +47,7 @@ function addBook() {
 function removingFromLib(element) {
     element.addEventListener('click', function (e) {
         let givenElement = document.querySelector(`.display-cards[data-id="${this.parentElement.dataset.id}"]`)
-        for (let i = 0; i <= myLibrary.length - 1; i++) {
+        for (let i = 0; i < myLibrary.length; i++) {
             for (let keys in myLibrary[i]) {
                 if (myLibrary[i][keys] == this.parentElement.dataset.id) {
                     myLibrary.splice(i, 1);
@@ -65,7 +66,7 @@ function removingFromLib(element) {
 function changeStatus(element) {
     console.log('Accessed');
     element.addEventListener('click', function () {
-        for (let i = 0; i <= myLibrary.length - 1; i++) {
+        for (let i = 0; i < myLibrary.length; i++) {
             for (let keys in myLibrary[i]) {
                 if (myLibrary[i][keys] == this.parentElement.dataset.id) {
                     myLibrary[i].haveRead = myLibrary[i].haveRead == true ? false : true;
@@ -82,7 +83,7 @@ function changeStatus(element) {
 
 function addToLocalStorage() {
 
-    for (let i = 0; i <= myLibrary.length - 1; i++) {
+    for (let i = 0; i < myLibrary.length; i++) {
         localStorage.setItem(i, JSON.stringify(myLibrary[i]));
     }
 }
@@ -92,7 +93,7 @@ function getFromLocalStorage() {
         return
     }
     else {
-        for (let i = 0; i <= localStorage.length - 1; i++) {
+        for (let i = 0; i < localStorage.length; i++) {
             myLibrary[i] = JSON.parse(localStorage.getItem(String(i)));
         }
     }
@@ -105,7 +106,7 @@ function overallListener(event) {
     if (targetEvent.classList.contains('remove')) {
         console.log('Accessed');
         let givenElement = document.querySelector(`.display-cards[data-id="${targetEvent.parentElement.dataset.id}"]`)
-        for (let i = 0; i <= myLibrary.length - 1; i++) {
+        for (let i = 0; i < myLibrary.length; i++) {
             for (let keys in myLibrary[i]) {
                 if (myLibrary[i][keys] == givenElement.dataset.id) {
                     myLibrary.splice(i, 1);
@@ -118,7 +119,7 @@ function overallListener(event) {
         givenElement.remove();
     }
     else if (targetEvent.classList.contains('change-status')) {
-        for (let i = 0; i <= myLibrary.length - 1; i++) {
+        for (let i = 0; i < myLibrary.length; i++) {
             for (let keys in myLibrary[i]) {
                 if (myLibrary[i][keys] == targetEvent.parentElement.dataset.id) {
                     myLibrary[i].haveRead = myLibrary[i].haveRead == true ? false : true;
@@ -149,7 +150,7 @@ submitBtn.addEventListener('click', function () {
         return
     }
     if (myLibrary.length > 0) {
-        for (let i = 0; i <= myLibrary.length - 1; i++) {
+        for (let i = 0; i < myLibrary.length; i++) {
             for (let keys in myLibrary[i]) {
                 if (myLibrary[i][keys] == inputTitle.value) {
                     alert('TItle already exists!');
